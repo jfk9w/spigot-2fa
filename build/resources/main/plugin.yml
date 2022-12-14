@@ -1,0 +1,22 @@
+name: 2FA
+version: "0.0.1-SNAPSHOT"
+api-version: 1.19
+authors: [ jfk9w ]
+main: jfk9w.bukkit.plugin.twofactor.TwoFactorAuthenticationPlugin
+description: Add another layer of protection to your server
+
+libraries:
+  - com.warrenstrange:googleauth:1.5.0
+  - org.reflections:reflections:0.10.2
+
+commands:
+  2fa:
+    description: Allow or reset authentication setup for a given player.
+    usage: >-
+      Use "/2fa <player_name>" to allow or reset authentication setup for a given player.
+      Caller must be authenticated, target player must be online.
+    aliases: [ reset ]
+  code:
+    description: Authenticate with your TOTP code.
+    usage: Use "/code <code>" in order to authenticate with your TOTP code.
+    aliases: [ auth ]

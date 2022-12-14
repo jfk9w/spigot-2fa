@@ -1,0 +1,36 @@
+plugins {
+    id "java"
+    id "io.freefair.lombok" version "$lombokPluginVersion"
+    id "com.github.johnrengelman.shadow" version "$shadowVersion"
+}
+
+group "jfk9w.bukkit.plugin"
+version "0.0.1-SNAPSHOT"
+
+defaultTasks "clean", "shadowJar"
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+    maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+
+    compileOnly "org.spigotmc:spigot-api:$spigotVersion"
+
+    implementation "com.warrenstrange:googleauth:$googleAuthVersion"
+    implementation "org.reflections:reflections:$reflectionsVersion"
+}
+
+jar {
+    enabled = false
+    dependsOn(shadowJar)
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
