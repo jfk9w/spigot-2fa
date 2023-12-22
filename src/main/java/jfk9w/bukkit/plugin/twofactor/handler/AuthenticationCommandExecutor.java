@@ -30,22 +30,27 @@ public class AuthenticationCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) {
+        if (!sender.isOp() && !(sender instanceof Player)) {
             return false;
         }
 
         if (args.length < 1) {
-            return help(player, command, args);
+            return help(sender, command, args);
         }
 
         return switch (command.getName()) {
-            case "2fa" -> reset(player, command, args);
-            case "code" -> code(player, command, args);
-            default -> help(player, command, args);
+            case "2fa" -> reset(sender, command, args);
+            case "code" -> code(sender, command, args);
+            default -> help(sender, command, args);
         };
     }
 
-    private boolean code(Player player, Command command, String[] args) {
+    private boolean code(CommandSender sender, Command command, String[] args) {
+        if (!(sender instanceof Player player)) {
+            messages.error(sender, "This method should only be called by a player");
+            return false;
+        }
+
         int code;
         try {
             code = Integer.parseInt(args[0]);
@@ -57,26 +62,27 @@ public class AuthenticationCommandExecutor implements CommandExecutor {
         return true;
     }
 
-    private boolean reset(Player player, Command command, String[] args) {
-        if (!authentication.isAuthenticated(player.getUniqueId())) {
-            messages.error(player, "You must be authenticated in order to call \"/2fa\"");
+    private boolean reset(CommandSender sender, Command command, String[] args) {
+        if (!sender.isOp() &&
+                ((sender instanceof Player player) && !authentication.isAuthenticated(player.getUniqueId()))) {
+            messages.error(sender, "You must be authenticated in order to call \"/2fa\"");
             return false;
         }
 
         var targetName = args[0];
         return players.getPlayer(targetName)
                 .map(target -> {
-                    events.callEvent(new PlayerAuthResetEvent(player, target));
+                    events.callEvent(new PlayerAuthResetEvent(sender, target));
                     return true;
                 })
                 .orElseGet(() -> {
-                    messages.error(player, "Player %s must be online in order to setup 2FA", targetName);
+                    messages.error(sender, "Player %s must be online in order to setup 2FA", targetName);
                     return false;
                 });
     }
 
-    private boolean help(Player player, Command command, String[] args) {
-//        messages.info(player, command.getUsage());
+    private boolean help(CommandSender sender, Command command, String[] args) {
+        messages.info(sender, command.getUsage());
         return false;
     }
 }
