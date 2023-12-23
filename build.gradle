@@ -2,11 +2,22 @@ plugins {
     id "java"
     id "io.freefair.lombok" version "$lombokPluginVersion"
     id "com.github.johnrengelman.shadow" version "$shadowVersion"
-    id "com.palantir.git-version" version "$gitVersionVersion"
+    id 'me.qoomon.git-versioning' version "$gitVersioningVersion"
 }
 
 group "jfk9w.bukkit.plugin"
-version gitVersion()
+
+version = "0.0.0-SNAPSHOT"
+gitVersioning.apply {
+    refs {
+        considerTagsOnBranches = true
+        tag("v(?<version>.*)") { version = '${ref.version}' }
+        branch(".+") { version = '${ref}-SNAPSHOT' }
+    }
+
+    // optional fallback configuration in case of no matching ref configuration
+    rev { version = '${commit}' }
+}
 
 defaultTasks "clean", "shadowJar"
 
