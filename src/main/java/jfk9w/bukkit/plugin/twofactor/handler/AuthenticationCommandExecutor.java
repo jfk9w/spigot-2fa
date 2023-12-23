@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 @Builder
@@ -30,7 +31,7 @@ public class AuthenticationCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.isOp() && !(sender instanceof Player)) {
+        if (!(sender instanceof RemoteConsoleCommandSender) && !(sender instanceof Player)) {
             return false;
         }
 
@@ -63,7 +64,7 @@ public class AuthenticationCommandExecutor implements CommandExecutor {
     }
 
     private boolean reset(CommandSender sender, Command command, String[] args) {
-        if (!sender.isOp() &&
+        if (!(sender instanceof RemoteConsoleCommandSender) &&
                 ((sender instanceof Player player) && !authentication.isAuthenticated(player.getUniqueId()))) {
             messages.error(sender, "You must be authenticated in order to call \"/2fa\"");
             return false;
