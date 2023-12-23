@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static jfk9w.bukkit.plugin.twofactor.util.Util.ip;
+import static jfk9w.bukkit.plugin.twofactor.util.Util.isLAN;
 
 @Builder
 @RequiredArgsConstructor
@@ -118,7 +119,7 @@ public class AuthenticationEventHandler implements Listener {
     }
 
     private void join(Player player, Credential credential) {
-        if (StringUtils.equalsIgnoreCase(ip(player), credential.getIp())) {
+        if (isLAN(player) || StringUtils.equalsIgnoreCase(ip(player), credential.getIp())) {
             messages.success(player, "You were authenticated automatically");
             authentication.authenticate(player);
             return;
@@ -130,7 +131,7 @@ public class AuthenticationEventHandler implements Listener {
     private void authenticate(Player player, Credential credential, int code) {
         var playerId = player.getUniqueId();
         if (authenticator.authorize(credential.getKey(), code)) {
-            if (!credentials.saveCredential(playerId, credential.withIp(ip(player)))) {
+            if (!isLAN(player) && !credentials.saveCredential(playerId, credential.withIp(ip(player)))) {
                 messages.error(player, "Failed to save 2FA credentials due to internal error");
                 return;
             }
