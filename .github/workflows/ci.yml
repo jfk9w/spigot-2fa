@@ -3,8 +3,24 @@ name: CI
 on: [ push, workflow_dispatch ]
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Test
+        run: ./gradlew test
   tag:
     name: Tag
+    needs: [ test ]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
     outputs:
@@ -32,6 +48,8 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Build
         run: ./gradlew build
+        env:
+          VERSIONING_GIT_REF: "refs/tags/${{ needs.tag.outputs.new_tag }}"
       - name: Release
         uses: ncipollo/release-action@v1
         with:
