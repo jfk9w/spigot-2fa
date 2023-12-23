@@ -23,15 +23,13 @@ and no griefer can sneak in. No whitelist setup is required!
 
 **Command**: `/2fa <player_name>`
 
-**Description**: Allow or reset authentication setup for a given player. 
+*Description*: Allow or reset authentication setup for a given player. 
 The command must be executed either from console or by an authenticated user. 
 Target player must be online.
 
----
-
 **Command**: `/code <totp_code>`
 
-**Description**: Use this command in order to authenticate with your TOTP code.
+*Description*: Use this command in order to authenticate with your TOTP code.
 
 ### Installation
 

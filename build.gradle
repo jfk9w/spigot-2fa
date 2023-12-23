@@ -2,10 +2,11 @@ plugins {
     id "java"
     id "io.freefair.lombok" version "$lombokPluginVersion"
     id "com.github.johnrengelman.shadow" version "$shadowVersion"
+    id "com.palantir.git-version" version "$gitVersionVersion"
 }
 
 group "jfk9w.bukkit.plugin"
-version "0.0.1-SNAPSHOT"
+version gitVersion()
 
 defaultTasks "clean", "shadowJar"
 
