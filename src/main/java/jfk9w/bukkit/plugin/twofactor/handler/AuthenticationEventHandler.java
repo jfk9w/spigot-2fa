@@ -13,7 +13,7 @@ import jfk9w.bukkit.plugin.twofactor.service.MessageService;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,15 +55,20 @@ public class AuthenticationEventHandler implements Listener {
     @SuppressWarnings("unused")
     void onPlayerJoin(PlayerJoinEvent event) {
         var player = event.getPlayer();
+        if (isLAN(player)) {
+            authentication.authenticate(player);
+            return;
+        }
+
         scheduler.scheduleSyncDelayedTask(() -> {
             if (!authentication.isAuthenticated(player.getUniqueId()) && player.isOnline()) {
                 log.info(String.format(
-                        "%s (%s) from %s is being kicked due to failing authentication in 3 minutes since joining",
+                        "%s (%s) from %s is being kicked due to failing authentication in 5 minutes since joining",
                         player.getName(), player.getUniqueId(), ip(player)));
 
                 player.kickPlayer("[2FA] You need to authenticate with \"/code <code>\"");
             }
-        }, 3 * 60 * 20);
+        }, 5 * 60 * 20);
 
         credentials.getCredential(player.getUniqueId()).ifPresentOrElse(
                 credential -> join(player, credential),
@@ -73,7 +78,9 @@ public class AuthenticationEventHandler implements Listener {
     @EventHandler
     @SuppressWarnings("unused")
     void onPlayerQuit(PlayerQuitEvent event) {
-        authentication.revoke(event.getPlayer());
+        var player = event.getPlayer();
+        authentication.revoke(player);
+        pendingSetups.remove(player.getUniqueId());
     }
 
     @EventHandler
@@ -119,7 +126,7 @@ public class AuthenticationEventHandler implements Listener {
     }
 
     private void join(Player player, Credential credential) {
-        if (isLAN(player) || StringUtils.equalsIgnoreCase(ip(player), credential.getIp())) {
+        if (StringUtils.equalsIgnoreCase(ip(player), credential.getIp())) {
             messages.success(player, "You were authenticated automatically");
             authentication.authenticate(player);
             return;
@@ -131,7 +138,7 @@ public class AuthenticationEventHandler implements Listener {
     private void authenticate(Player player, Credential credential, int code) {
         var playerId = player.getUniqueId();
         if (authenticator.authorize(credential.getKey(), code)) {
-            if (!isLAN(player) && !credentials.saveCredential(playerId, credential.withIp(ip(player)))) {
+            if (!credentials.saveCredential(playerId, credential.withIp(ip(player)))) {
                 messages.error(player, "Failed to save 2FA credentials due to internal error");
                 return;
             }
@@ -160,8 +167,8 @@ public class AuthenticationEventHandler implements Listener {
                 "https://www.google.com/chart?chs=512x512&cht=qr&chl=otpauth://totp/%s?secret=%s&issuer=%s",
                 player.getName(), key, Bukkit.getServer().getMotd());
 
-        messages.info(player, "Your key is %s", key);
-        messages.url(player, qrCodeUrl, "Click this message in order to generate QR code for Google Authenticator");
+        messages.copy(player, key, "Your key is %s (click to copy)", key);
+        messages.url(player, qrCodeUrl, "QR code for Google Authenticator (click to open in browser)");
         messages.warn(player, "Please use \"/code <code>\" in order to complete authentication setup");
     }
 

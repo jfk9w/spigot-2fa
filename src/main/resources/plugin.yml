@@ -1,6 +1,6 @@
 name: 2FA
 version: "0.0.1-SNAPSHOT"
-api-version: 1.19
+api-version: 1.21
 authors: [ jfk9w ]
 main: jfk9w.bukkit.plugin.twofactor.TwoFactorAuthenticationPlugin
 description: Add another layer of protection to your server
@@ -8,6 +8,7 @@ description: Add another layer of protection to your server
 libraries:
   - com.warrenstrange:googleauth:1.5.0
   - org.reflections:reflections:0.10.2
+  - org.apache.commons:commons-lang3:3.17.0
 
 commands:
   2fa:

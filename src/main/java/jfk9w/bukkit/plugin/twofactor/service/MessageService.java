@@ -12,6 +12,12 @@ public class MessageService {
 
     private static final String PREFIX = "[2FA] ";
 
+    public void copy(Player player, String text, String pattern, String ...args) {
+        var component = new TextComponent(PREFIX + String.format(pattern, (Object[]) args));
+        component.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, text));
+        player.spigot().sendMessage(component);
+    }
+
     public void url(Player player, String url, String pattern, String... args) {
         var component = new TextComponent(PREFIX + String.format(pattern, (Object[]) args));
         component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));

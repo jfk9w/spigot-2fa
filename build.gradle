@@ -36,6 +36,7 @@ dependencies {
 
     implementation "com.warrenstrange:googleauth:$googleAuthVersion"
     implementation "org.reflections:reflections:$reflectionsVersion"
+    implementation "org.apache.commons:commons-lang3:$commonsLangVersion"
 }
 
 jar {
